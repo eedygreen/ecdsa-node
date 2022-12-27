@@ -8,21 +8,19 @@ function App() {
   const [publicKey, setPublickKey] = useState("");
   const [privateKey, setPrivateKey] = useState("");
 
-  return (
+  return(
     <div className="app">
       <Wallet
         balance={balance}
         setBalance={setBalance}
-        publicKey={publicKey}
-        setPublicKey={setPublickKey}
+        publicKey={publicKey}        
         privateKey={privateKey}
-        setPrivateKey={setPrivateKey}
-      />
+        setPublicKey={setPublickKey}
+        setPrivateKey={setPrivateKey}/>
       <Transfer 
         setBalance={setBalance} 
         publicKey={publicKey}
-        privateKey={privateKey}
-        />
+        privateKey={privateKey}/>
     </div>
   );
 }

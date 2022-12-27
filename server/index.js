@@ -1,6 +1,6 @@
 const express = require("express");
 const secp = require("ethereum-cryptography/secp256k1");
-
+const { toHex } = require("ethereum-cryptography/utils");
 const fs = require("fs");
 
 const app = express();
@@ -23,18 +23,30 @@ app.post("/send", (req, res) => {
   const { type, sender, recipient, sendAmount } = msg;
   const signature = Uint8Array.from(Object.values(signatureResponse[0]));
   const isSigned = secp.verify(signature, msgHash, sender);
-  const isValid = checkValidity(msgHash, signature, signatureResponse[1], sender);
+  const isValid = recoverKey(msgHash, signature, signatureResponse[1], sender);
 
-  setInitialBalance(sender);
-  setInitialBalance(recipient);
+  if(isSigned && isValid){
+    if(type === "transaction"){
+      setInitialBalance(sender);
+      setInitialBalance(recipient);
 
-  if (balances[sender] < amount) {
-    res.status(400).send({ message: "Not enough funds!" });
-  } else {
-    balances[sender] -= amount;
-    balances[recipient] += amount;
-    res.send({ balance: balances[sender] });
+      if (balances[sender] < sendAmount) {
+        res.status(400).send({ message: "Not enough funds!" });
+      } else {
+        balances[sender] -= sendAmount;
+        balances[recipient] += sendAmount;
+        res.send({ balance: balances[sender] });
+      }
+      
+    } 
+    else{
+      res.send({ balance: balances[sender]});
+    }
   }
+  else{
+    res.status(400).send({ message: "Invalid Transaction!"});
+  }
+
 });
 
 app.listen(port, () => {
@@ -45,4 +57,9 @@ function setInitialBalance(address) {
   if (!balances[address]) {
     balances[address] = 0;
   }
+}
+
+function recoverKey(msgHash, signature, recoveryBit, sender){
+  const recoverPubKey = toHex(secp.recoverPublicKey(msgHash, signature, recoveryBit));
+  return recoverPubKey.toString() === sender.toString();
 }
