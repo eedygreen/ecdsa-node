@@ -1,7 +1,9 @@
+import { sign } from "ethereum-cryptography/secp256k1";
 import { useState } from "react";
 import server from "./server";
+import toHash from "./utils/hash";
 
-function Transfer({ address, setBalance }) {
+function Transfer({ setBalance, privateKey, publicKey }) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
@@ -11,16 +13,33 @@ function Transfer({ address, setBalance }) {
     evt.preventDefault();
 
     try {
+      if (recipient && sendAmount) {
+        const msg = { 
+          type: "transactoin", 
+          sender: publicKey, recipient, 
+          sendAmount: parseInt(sendAmount) 
+        };
+        const msgHash = toHash(msg);
+        const signatureResponse = await sign(msgHash, privateKey, { recovered: true, });
+      
       const {
         data: { balance },
       } = await server.post(`send`, {
-        sender: address,
-        amount: parseInt(sendAmount),
-        recipient,
+        signatureResponse,
+        msgHash,
+        msg,
       });
       setBalance(balance);
-    } catch (ex) {
-      alert(ex.response.data.message);
+      alert("Sent!");
+      setSendAmount("");
+      setRecipient("");
+    }
+    else{
+      alert("Fill the details");
+    }
+    } catch (error) {
+      //alert(error.response.data.msg);
+      console.log(`error:  ${error}`);
     }
   }
 

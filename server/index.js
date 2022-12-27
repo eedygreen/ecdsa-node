@@ -1,4 +1,8 @@
 const express = require("express");
+const secp = require("ethereum-cryptography/secp256k1");
+
+const fs = require("fs");
+
 const app = express();
 const cors = require("cors");
 const port = 3042;
@@ -6,20 +10,20 @@ const port = 3042;
 app.use(cors());
 app.use(express.json());
 
-const balances = {
-  "0x1": 100,
-  "0x2": 50,
-  "0x3": 75,
-};
+const balances = JSON.parse(fs.readFileSync("../address.json"));
 
-app.get("/balance/:address", (req, res) => {
-  const { address } = req.params;
-  const balance = balances[address] || 0;
+app.get("/balance/:publicKey", (req, res) => {
+  const { publicKey } = req.params;
+  const balance = balances[publicKey] || 0;
   res.send({ balance });
 });
 
 app.post("/send", (req, res) => {
-  const { sender, recipient, amount } = req.body;
+  const { signatureResponse, msgHash, msg } = req.body;
+  const { type, sender, recipient, sendAmount } = msg;
+  const signature = Uint8Array.from(Object.values(signatureResponse[0]));
+  const isSigned = secp.verify(signature, msgHash, sender);
+  const isValid = checkValidity(msgHash, signature, signatureResponse[1], sender);
 
   setInitialBalance(sender);
   setInitialBalance(recipient);

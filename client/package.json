@@ -9,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "autoprefixer": "^10.4.13",
     "axios": "^0.27.2",
+    "ethereum-cryptography": "^1.1.2",
+    "postcss": "^8.4.20",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
