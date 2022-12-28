@@ -35,7 +35,7 @@ function Transfer({ setBalance, privateKey, publicKey }) {
       setRecipient("");
     }
     else{
-      alert("Fill the details");
+      alert("Fill the details: wallet address or signature");
     }
     } catch (error) {
       //alert(error.response.data.msg);

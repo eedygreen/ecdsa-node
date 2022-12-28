@@ -20,7 +20,6 @@ function Wallet({
         const pubKeyHex = toHex(pubKeyArray);
         setPublickKey(pubKeyHex);
         const addressBytes = keccak256(pubKeyArray.slice(1));
-        //const addressHex = toHex(addressBytes.slice(-20));
         setAddress(`0x${toHex(addressBytes.slice(-20))}`);
       if (pubKeyHex) {
         const {
@@ -45,7 +44,7 @@ function Wallet({
       <label>
         PRIVATE KEY
         <input placeholder="use your private key here, for example: 0x1" 
-        value={privateKey} onChange={onChange}></input>
+        value={privateKey} onChange={onChange}/>
       </label>
       {showError && <p className="
       error"> Invalid Private Key
